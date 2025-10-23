@@ -9,23 +9,23 @@ import java.util.TimerTask;
 public class Main {
     static final Vector2d GRAVITY = new Vector2d(0.0, -10.0);
     static final double DELTA_TIME = 0.001;
-    static final double BIAS = 0.1;
+    static final double BIAS = 0.05;
     static final int ITERATIONS = 32;
     static final int NUM_POINTS = 60;
-    static final double START_ANGLE = 0.0;
+    static final double START_ANGLE = 120.0;
     static final double DX = 1.0;
-    static final Vector2d ORIGIN = new Vector2d(15.0, 85.0);
-    static final Vector2d HEAD_VELOCITY = new Vector2d(10.0, 0.0);
+    static final Vector2d ORIGIN = new Vector2d(65.0, 85.0);
+    static final Vector2d HEAD_VELOCITY = new Vector2d(0.0, 0.0);
     static final double MASS = 2.0;
-    static final double LAST_MASS = 2.0;
-    static final double DRAG_CO = 0.3;
-    static final double LAST_DRAG_CO = 0.3;
+    static final double LAST_MASS = 60.0;
+    static final double DRAG_CO = 0.0;
+    static final double LAST_DRAG_CO = 0.0;
 
     public static void main(String[] args) {
         final ArrayList<Point> staticPoints = new ArrayList<>();
         final ArrayList<Point> activePoints = new ArrayList<>();
         final ArrayList<DistanceConstraint> constraints = new ArrayList<>();
-        Point head = new Point(ORIGIN, 1_000_000_000.0, DRAG_CO);
+        Point head = new Point(ORIGIN, 1_000_000.0, DRAG_CO);
         final Vector2d dir = new Vector2d(Math.cos(Math.toRadians(START_ANGLE - 90.0)), Math.sin(Math.toRadians(START_ANGLE - 90.0)));
         staticPoints.add(head);
         Point prev = head;
@@ -75,10 +75,18 @@ public class Main {
                     positions.add(point.position);
                 }
 
+
                 grid.update(positions);
 
                 final long finish = System.nanoTime();
                 System.out.println("Step took " + ((double) (finish - start) / 1_000_000.0) + "us");
+
+                double systemEnergy = 0.0;
+                for (Point point : activePoints) {
+                    systemEnergy += point.position.y * point.mass * Math.abs(GRAVITY.y) + 0.5 * point.mass * point.velocity.lengthSquared();
+                }
+               
+                System.out.println("System energy: " + systemEnergy);
             }
         }, 0, (int) (DELTA_TIME * 1000));
     }
