@@ -9,7 +9,7 @@ import java.util.TimerTask;
 public class Main {
     static final Vector2d GRAVITY = new Vector2d(0.0, -10.0);
     static final double DELTA_TIME = 0.001;
-    static final double BIAS = 0.05;
+    static final double BIAS = 0.01;
     static final int ITERATIONS = 32;
     static final int NUM_POINTS = 60;
     static final double START_ANGLE = 120.0;
@@ -49,37 +49,41 @@ public class Main {
             @Override
             public void run() {
                 final long start = System.nanoTime();
+                for (int t = 0; t < 0.015 / DELTA_TIME; t++) {
 
-                ORIGIN.add(HEAD_VELOCITY.mul(DELTA_TIME, new Vector2d()));
-                final ArrayList<Vector2d> positions = new ArrayList<>();
-                // apply external forces
-                for (Point point : activePoints) {
-                    point.velocity.add(GRAVITY.mul(DELTA_TIME, new Vector2d())); // gravity
-                    final Vector2d drag = point.velocity.normalize(-point.drag * point.velocity.lengthSquared() * DELTA_TIME / point.mass, new Vector2d());
-                    point.velocity.add(drag);
-                }
+                    ORIGIN.add(HEAD_VELOCITY.mul(DELTA_TIME, new Vector2d()));
+                    // apply external forces
+                    for (Point point : activePoints) {
+                        point.velocity.add(GRAVITY.mul(DELTA_TIME, new Vector2d())); // gravity
+                        final Vector2d drag = point.velocity.normalize(-point.drag * point.velocity.lengthSquared() * DELTA_TIME / point.mass, new Vector2d());
+                        point.velocity.add(drag);
+                    }
 
-                for (int i = 0; i < ITERATIONS; i++) {
-                    for (DistanceConstraint constraint : constraints) {
-                        constraint.solve();
+                    for (int i = 0; i < ITERATIONS; i++) {
+                        for (DistanceConstraint constraint : constraints) {
+                            constraint.solve();
+                        }
+                    }
+
+                    // apply positions
+                    for (Point point : activePoints) {
+                        point.position.add(point.velocity.mul(DELTA_TIME, new Vector2d()));
                     }
                 }
 
-                // apply positions
+                final ArrayList<Vector2d> positions = new ArrayList<>();
                 for (Point point : activePoints) {
-                    point.position.add(point.velocity.mul(DELTA_TIME, new Vector2d()));
                     positions.add(point.position);
                 }
-
+                
                 for (Point point : staticPoints) {
                     positions.add(point.position);
                 }
 
-
                 grid.update(positions);
 
                 final long finish = System.nanoTime();
-                System.out.println("Step took " + ((double) (finish - start) / 1_000_000.0) + "us");
+                System.out.println("Step took " + ((double) (finish - start) / 1_000_000.0) + "ms");
 
                 double systemEnergy = 0.0;
                 for (Point point : activePoints) {
@@ -88,6 +92,6 @@ public class Main {
                
                 System.out.println("System energy: " + systemEnergy);
             }
-        }, 0, (int) (DELTA_TIME * 1000));
+        }, 0, 15);
     }
 }
