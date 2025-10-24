@@ -11,15 +11,15 @@ public class Main {
     static final double DELTA_TIME = 0.001;
     static final double BIAS = 0.01;
     static final int ITERATIONS = 32;
-    static final int NUM_POINTS = 60;
-    static final double START_ANGLE = 120.0;
+    static final int NUM_POINTS = 50;
+    static final double START_ANGLE = -200.0;
     static final double DX = 1.0;
-    static final Vector2d ORIGIN = new Vector2d(65.0, 85.0);
-    static final Vector2d HEAD_VELOCITY = new Vector2d(0.0, 0.0);
-    static final double MASS = 2.0;
-    static final double LAST_MASS = 60.0;
-    static final double DRAG_CO = 0.0;
-    static final double LAST_DRAG_CO = 0.0;
+    static final Vector2d ORIGIN = new Vector2d(-60.0, 85.0);
+    static final Vector2d HEAD_VELOCITY = new Vector2d(5.0, 0.0);
+    static final double MASS = 10.0;
+    static final double LAST_MASS = 10.0;
+    static final double DRAG_CO = 0.3;
+    static final double LAST_DRAG_CO = 0.3;
 
     public static void main(String[] args) {
         final ArrayList<Point> staticPoints = new ArrayList<>();
@@ -43,7 +43,9 @@ public class Main {
         constraints.add(new DistanceConstraint(prev, last, DX));
         activePoints.add(last);
 
-        TerminalGrid grid = new TerminalGrid(300, 100);
+        // World window: x from 0 to 150 meters, y from 35 to 85 meters
+        // Resolution: 2 characters per meter
+        TerminalGrid grid = new TerminalGrid(-80, 25, 80, 120, 1.0);
         Timer timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override

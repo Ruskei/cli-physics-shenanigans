@@ -47,9 +47,6 @@ public class DistanceConstraint {
         
         double bias = -BIAS / DELTA_TIME * (distance - pa.distance(pb));
         double lambda = -(r.dot(va) - r.dot(vb) + bias) / (rr * ima + rr * imb);
-//        System.out.println("SOLVING");
-//        System.out.println("| distance: " + pa.distance(pb) + " (desired: " + distance + ")");
-//        System.out.println("| lambda: " + lambda);
         Vector2d dva = r.mul(lambda * ima, new Vector2d());
         Vector2d dvb = r.mul(-lambda * imb, new Vector2d());
 
