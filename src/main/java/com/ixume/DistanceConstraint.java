@@ -36,21 +36,22 @@ public class DistanceConstraint {
     public void solve() {
         double ima = 1.0 / a.mass;
         double imb = 1.0 / b.mass;
-        Vector2d pa = a.position;
-        Vector2d pb = b.position;
-        Vector2d r = pa.sub(pb, new Vector2d());
-        double rr = r.dot(r);
+
+        // Use scalar operations to avoid allocations
+        double rx = a.position.x - b.position.x;
+        double ry = a.position.y - b.position.y;
+
+        double rr = rx * rx + ry * ry;
         if (rr == 0.0) return;
 
-        Vector2d va = a.velocity;
-        Vector2d vb = b.velocity;
-        
-        double bias = -BIAS / DELTA_TIME * (distance - pa.distance(pb));
-        double lambda = -(r.dot(va) - r.dot(vb) + bias) / (rr * ima + rr * imb);
-        Vector2d dva = r.mul(lambda * ima, new Vector2d());
-        Vector2d dvb = r.mul(-lambda * imb, new Vector2d());
+        double dist = Math.sqrt(rx * rx + ry * ry);
+        double bias = -BIAS / DELTA_TIME * (distance - dist);
+        double lambda = -(a.velocity.x * rx + a.velocity.y * ry - b.velocity.x * rx - b.velocity.y * ry + bias) / (rr * ima + rr * imb);
 
-        va.add(dva);
-        vb.add(dvb);
+        // Update velocities in place
+        a.velocity.x += lambda * ima * rx;
+        a.velocity.y += lambda * ima * ry;
+        b.velocity.x += -lambda * imb * rx;
+        b.velocity.y += -lambda * imb * ry;
     }
 }
